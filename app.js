@@ -62,6 +62,8 @@ function processResponse(err, response) {
 
 	}
 
+var context  =  null;
+
 app.post('/mainflow', function(req, res, next) {
 	console.log('$$$$$$$$$$$$$$$$$$ In mainflow:',req.body.input, req.body.leavemgmt);
 //	conversation.message({input:{text:req.body.input},context : req.body.context,}, processResponse);
@@ -71,14 +73,23 @@ app.post('/mainflow', function(req, res, next) {
 //		toshow = 'Hello I am Watson, How can I help you? (Get more about us in <a href=\'#\' onclick=\'window.open("http://www.ibm.com/watson"); return;\'> IBM Watson</a>")';
 //	}
 //	console.log('res:'+toshow);
+	
+
+	if (null == context) {
+		context = req.body.context;
+
+	}
+		
 	conversation.message({
 		  input: { text: req.body.input },
-		  context: req.body.context
+		  context: context
 		 }, function(err, response) {
 		     if (err) {
 		       console.error(err);
 		     } else {
+//		    	 console.log("DDDDDDD:"+context.conversation_id);
 		       console.log(JSON.stringify(response, null, 2));
+		       context = response.context;//多轮对话需要将res的context赋给请求context
 		       res.json(response.output.text[0]);
 		     }
 		});
