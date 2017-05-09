@@ -8,6 +8,7 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+var querystring = require('querystring');
 var watson = require('watson-developer-cloud');
 
 var conversation = watson.conversation({
@@ -66,20 +67,29 @@ var context  =  null;
 
 app.post('/mainflow', function(req, res, next) {
 	console.log('$$$$$$$$$$$$$$$$$$ In mainflow:',req.body.input, req.body.leavemgmt);
-//	conversation.message({input:{text:req.body.input},context : req.body.context,}, processResponse);
-//
-//	if(toshow.length < 1)
-//	{
-//		toshow = 'Hello I am Watson, How can I help you? (Get more about us in <a href=\'#\' onclick=\'window.open("http://www.ibm.com/watson"); return;\'> IBM Watson</a>")';
-//	}
-//	console.log('res:'+toshow);
 	
-
 	if (null == context) {
 		context = req.body.context;
 
 	}
-		
+	
+	var url = req.headers.referer;
+	var param = url.split("?");
+	console.log("url:"+url+" type:"+typeof(url)+" length:"+param.length );
+	
+	var username = '';
+	if(param.length == 2)
+	{
+		var params =  querystring.parse(param[1]);
+		if(null != params.username)
+		{
+			username = params.username+',';
+		}
+		console.log("params:"+JSON.stringify(params, null, 4));	
+	}
+	
+	
+	
 	var client_input = req.body.input;
 	
 	conversation.message({
@@ -94,7 +104,7 @@ app.post('/mainflow', function(req, res, next) {
 		       context = response.context;//多轮对话需要将res的context赋给请求context
 		   	if( null == req.body.input)
 			{
-				res.json('Hello I am Watson, How can I help you? (Get more about us in <a href=\'#\' onclick=\'window.open("http://www.ibm.com/watson"); return;\'> IBM Watson</a>")');
+				res.json('Hello '+username+' I am Watson, How can I help you? (Get more about us in <a href=\'#\' onclick=\'window.open("http://www.ibm.com/watson"); return;\'> IBM Watson</a>")');
 			}
 		   	else
 		   	{
