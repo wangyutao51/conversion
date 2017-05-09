@@ -80,8 +80,10 @@ app.post('/mainflow', function(req, res, next) {
 
 	}
 		
+	var client_input = req.body.input;
+	
 	conversation.message({
-		  input: { text: req.body.input },
+		  input: { text: client_input },
 		  context: context
 		 }, function(err, response) {
 		     if (err) {
@@ -90,7 +92,14 @@ app.post('/mainflow', function(req, res, next) {
 //		    	 console.log("DDDDDDD:"+context.conversation_id);
 		       console.log(JSON.stringify(response, null, 2));
 		       context = response.context;//多轮对话需要将res的context赋给请求context
-		       res.json(response.output.text[0]);
+		   	if( null == req.body.input)
+			{
+				res.json('Hello I am Watson, How can I help you? (Get more about us in <a href=\'#\' onclick=\'window.open("http://www.ibm.com/watson"); return;\'> IBM Watson</a>")');
+			}
+		   	else
+		   	{
+		   		res.json(response.output.text[0]);
+		   	}
 		     }
 		});
 //  	res.json(toshow);
